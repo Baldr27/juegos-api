@@ -9,8 +9,9 @@ describe("Pruebas de servicios de Busqueda", () => {
 
         const jsonEsperado = imagenesFiltradas;
         const jsonCompleto = imagenesNoFiltradas;
+        const parametroDeBusqueda = "montaña playa";
 
-        const filtradas = busqueda.filtrarImagenes(jsonCompleto);
+        const filtradas = busqueda.filtrarImagenes(jsonCompleto, parametroDeBusqueda);
 
         expect(jsonEsperado).to.equal(filtradas);
     });

@@ -8,7 +8,8 @@
             "etiquetas": [
                 "paisaje",
                 "montaña"
-            ]
+            ],
+            "titulo": "Vista de la montaña"
         },
         {
             "id": 3,
@@ -18,7 +19,8 @@
             "etiquetas": [
                 "mar",
                 "playa"
-            ]
+            ],
+            "titulo": "Playa al atardecer"
         }
     ]
 }
