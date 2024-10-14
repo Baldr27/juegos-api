@@ -1,7 +1,9 @@
 {
   "compilerOptions": {
     "allowImportingTsExtensions": true,
+    "allowJs": true,
     "module": "ESNext",
+    "skipLibCheck": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "target": "es6",
