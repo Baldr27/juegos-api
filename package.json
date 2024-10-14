@@ -19,6 +19,7 @@
     "@types/express": "^5.0.0",
     "@types/mocha": "^10.0.8",
     "@types/node": "^22.7.4",
+    "allure-mocha": "^3.0.5",
     "chai": "^5.1.1",
     "mocha": "^10.7.3",
     "ts-node": "^10.9.2",
