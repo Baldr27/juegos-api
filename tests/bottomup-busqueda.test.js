@@ -75,7 +75,8 @@ const resetImages = () => {
     ];
 };
 
-describe('Test de servicios para imágenes', () => {
+// Test inicial de servicios sin controllers---------------------------------------------------------------------------------------------
+describe('Test de integracion de servicios para imágenes bottom-up', () => {
 
     // Restablecer imágenes antes de cada prueba
     beforeEach(() => {
@@ -105,5 +106,24 @@ describe('Test de servicios para imágenes', () => {
         const images = await getAllImages();
         expect(images).to.have.lengthOf(5);
         expect(addedImage).to.deep.equal({ id: 5, ...newImage });
+    });
+});
+
+
+//Test de servicios con controllers---------------------------------------------------------------------------------------------
+import request from 'supertest';
+import express from 'express';
+import db from '../config/db.js';
+import ImageRoutes from '../routes/ImageRoutes.js';
+
+const app = express();
+app.use(express.json());
+app.use('/images', ImageRoutes);
+
+// Limpiar la base de datos antes de cada prueba
+beforeEach((done) => {
+    db.run("DELETE FROM tasks", (err) => {
+        if (err) return done(err);
+        done();
     });
 });
