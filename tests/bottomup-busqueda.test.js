@@ -114,11 +114,11 @@ describe('Test de integracion de servicios para imágenes bottom-up', () => {
 import request from 'supertest';
 import express from 'express';
 import db from '../config/db.js';
-import ImageRoutes from '../routes/ImageRoutes.js';
+import imageRoutes from '../routes/ImageRoutes.js';
 
 const app = express();
 app.use(express.json());
-app.use('/images', ImageRoutes);
+app.use('/images', imageRoutes);
 
 // Limpiar la base de datos antes de cada prueba
 beforeEach((done) => {

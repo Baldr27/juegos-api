@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import request from 'supertest';
 import express from 'express';
-import taskRoutes from '../routes/taskRoutes.js';
+import taskRoutes from '../routes/TaskRoutes.js';
 import db from '../config/db.js';
 
 const app = express();
