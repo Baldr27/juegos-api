@@ -8,5 +8,5 @@
   "reporter": "allure-mocha",
   "reporterOptions": ["resultsDir=allure-results"],
   "spec": ["tests/**/*.test.js"],
-  "ui": "tdd"
+  "ui": "bdd"
 }
