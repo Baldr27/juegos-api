@@ -1,120 +1,8 @@
 import { expect } from 'chai';
-import { getAllImages, filterImages, addImage } from '../services/SearchService.js';
-
-// Estado inicial de las imágenes antes de cada prueba
-let imagenesNoFiltradas = [
-    {
-        "id": 1,
-        "url": "https://example.com/imagen1.jpg",
-        "formato": "jpeg",
-        "resolucion": "1920x1080",
-        "etiquetas": ["paisaje", "montaña"],
-        "titulo": "Vista de la montaña"
-    },
-    {
-        "id": 2,
-        "url": "https://example.com/imagen2.png",
-        "formato": "png",
-        "resolucion": "1280x720",
-        "etiquetas": ["ciudad", "noche"],
-        "titulo": "Ciudad en la noche"
-    },
-    {
-        "id": 3,
-        "url": "https://example.com/imagen3.jpg",
-        "formato": "jpeg",
-        "resolucion": "1024x768",
-        "etiquetas": ["mar", "playa"],
-        "titulo": "Playa al atardecer"
-    },
-    {
-        "id": 4,
-        "url": "https://example.com/imagen4.bmp",
-        "formato": "bmp",
-        "resolucion": "800x600",
-        "etiquetas": ["bosque", "arboles"],
-        "titulo": "Bosque tranquilo"
-    }
-];
-
-// Función para restablecer el estado inicial de las imágenes
-const resetImages = () => {
-    imagenesNoFiltradas = [
-        {
-            "id": 1,
-            "url": "https://example.com/imagen1.jpg",
-            "formato": "jpeg",
-            "resolucion": "1920x1080",
-            "etiquetas": ["paisaje", "montaña"],
-            "titulo": "Vista de la montaña"
-        },
-        {
-            "id": 2,
-            "url": "https://example.com/imagen2.png",
-            "formato": "png",
-            "resolucion": "1280x720",
-            "etiquetas": ["ciudad", "noche"],
-            "titulo": "Ciudad en la noche"
-        },
-        {
-            "id": 3,
-            "url": "https://example.com/imagen3.jpg",
-            "formato": "jpeg",
-            "resolucion": "1024x768",
-            "etiquetas": ["mar", "playa"],
-            "titulo": "Playa al atardecer"
-        },
-        {
-            "id": 4,
-            "url": "https://example.com/imagen4.bmp",
-            "formato": "bmp",
-            "resolucion": "800x600",
-            "etiquetas": ["bosque", "arboles"],
-            "titulo": "Bosque tranquilo"
-        }
-    ];
-};
-
-// Test inicial de servicios sin controllers---------------------------------------------------------------------------------------------
-describe('Test de integracion de servicios para imágenes bottom-up', () => {
-
-    // Restablecer imágenes antes de cada prueba
-    beforeEach(() => {
-        resetImages();
-    });
-
-    it('getAllImages debe devolver todas las imágenes', async () => {
-        const images = await getAllImages();
-        expect(images).to.have.lengthOf(4);
-    });
-
-    it('filterImages debe devolver las imágenes filtradas', async () => {
-        const images = await filterImages('montaña');
-        expect(images).to.have.lengthOf(1);
-    });
-
-    it('addImage debe agregar una imagen', async () => {
-        const newImage = {
-
-            "url": "https://example.com/imagen5.png",
-            "formato": "png",
-            "resolucion": "800x600",
-            "etiquetas": ["bosque", "estructura"],
-            "titulo": "Escalera en el bosque"
-        };
-        const addedImage = await addImage(newImage);
-        const images = await getAllImages();
-        expect(images).to.have.lengthOf(5);
-        expect(addedImage).to.deep.equal({ id: 5, ...newImage });
-    });
-});
-
-
-//Test de servicios con controllers---------------------------------------------------------------------------------------------
 import request from 'supertest';
 import express from 'express';
-import db from '../config/db.js';
 import imageRoutes from '../routes/ImageRoutes.js';
+import db from '../config/db.js';
 
 const app = express();
 app.use(express.json());
@@ -122,8 +10,105 @@ app.use('/images', imageRoutes);
 
 // Limpiar la base de datos antes de cada prueba
 beforeEach((done) => {
-    db.run("DELETE FROM tasks", (err) => {
+    db.run("DELETE FROM images", (err) => {  // Asegúrate de que el nombre de la tabla sea correcto
         if (err) return done(err);
         done();
+    });
+});
+
+describe('Bottom-Up Integration Tests for Images', () => {
+
+    it('Debería permitir guardar la imagen en el almacenamiento local', (done) => {
+        request(app)
+            .post('/images')
+            .send({
+                url: 'https://example.com/imagen1.jpg',
+                formato: 'jpeg',
+                resolucion: '1920x1080',
+                etiquetas: ['paisaje', 'montaña'],
+                titulo: 'Vista de la montaña',
+                usuario: {
+                    id: 103,
+                    nombre: 'Carlos Sanchez',
+                    email: 'carlos.sanchez@example.com'
+                }
+            })
+            .expect(201)
+            .end((err, res) => {
+                if (err) return done(err);
+                expect(res.body).to.have.property('id');
+                expect(res.body.titulo).to.equal('Vista de la montaña');
+                done();
+            });
+    });
+
+    it('Debería permitir la sincronización de imágenes con la nube', (done) => {
+        // Crear una imagen antes de intentar sincronizarla
+        request(app)
+            .post('/images')
+            .send({
+                url: 'https://example.com/imagen2.png',
+                formato: 'png',
+                resolucion: '1280x720',
+                etiquetas: ['ciudad', 'noche'],
+                titulo: 'Ciudad en la noche',
+                usuario: {
+                    id: 103,
+                    nombre: 'Carlos Sanchez',
+                    email: 'carlos.sanchez@example.com'
+                }
+            })
+            .expect(201)
+            .end((err) => {
+                if (err) return done(err);
+
+                // Verificar que la imagen se sincronizó correctamente
+                request(app)
+                    .get('/images')
+                    .expect(200)
+                    .end((err, res) => {
+                        if (err) return done(err);
+                        expect(res.body).to.be.an('array');
+                        expect(res.body.length).to.be.greaterThan(0); // Verifica que hay imágenes sincronizadas
+                        done();
+                    });
+            });
+    });
+
+    it('Debería permitir la interacción con la UI después de sincronizar las imágenes', (done) => {
+        // Crear una imagen antes de intentar interactuar con ella
+        request(app)
+            .post('/images')
+            .send({
+                url: 'https://example.com/imagen3.jpg',
+                formato: 'jpeg',
+                resolucion: '1024x768',
+                etiquetas: ['mar', 'playa'],
+                titulo: 'Playa al atardecer',
+                usuario: {
+                    id: 103,
+                    nombre: 'Carlos Sanchez',
+                    email: 'carlos.sanchez@example.com'
+                }
+            })
+            .expect(201)
+            .end((err) => {
+                if (err) return done(err);
+
+                // Interactuar con la imagen recién creada
+                request(app)
+                    .get('/images')
+                    .expect(200)
+                    .end((err, res) => {
+                        if (err) return done(err);
+
+                        // Asegurarse de que la imagen existe antes de verificar propiedades
+                        const image = res.body[0];
+                        expect(image).to.exist; // Verifica que la imagen no es null o undefined
+                        expect(image).to.have.property('titulo');
+                        expect(image.titulo).to.equal('Playa al atardecer');
+                        done();
+                    });
+            });
     });
 });

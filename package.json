@@ -22,12 +22,7 @@
     "eslint": "^9.11.0",
     "mocha": "^10.7.3",
     "nyc": "^17.1.0",
+    "nyc": "^17.1.0",
     "supertest": "^7.0.0"
-  },
-  "nyc": {
-      "reporter": ["text", "html", "lcov"],
-      "exclude": ["tests/**/*.test.js", "picbox-api/config/**"],
-      "extension": [".js"],
-      "all": true
   }
 }

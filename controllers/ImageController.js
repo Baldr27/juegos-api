@@ -1,4 +1,4 @@
-import ImageModel from '../models/ImageModel.js';
+import ImageModel from '../models/imageModel.js';
 
 export const getAllImages = async (req, res) => {
     try {
@@ -9,21 +9,48 @@ export const getAllImages = async (req, res) => {
     }
 };
 
-export const filterImages = async (req, res) => {
-    const { searchParameter } = req.query;
+export const getImageById = async (req, res) => {
     try {
-        const filteredImages = await ImageModel.filterImages(searchParameter);
-        res.json(filteredImages);
+        const image = await ImageModel.getImageById(req.params.id);
+        if (!image) {
+            return res.status(404).json({ message: 'Imagen no encontrada' });
+        }
+        res.json(image);
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        res.status(500).json({ message: 'Error al obtener la imagen' });
     }
 };
 
-export const addImage = async (req, res) => {
+export const createImage = async (req, res) => {
     try {
-        const newImage = await ImageModel.addImage(req.body);
+        const newImage = await ImageModel.createImage(req.body);
         res.status(201).json(newImage);
     } catch (err) {
-        res.status(400).json({ message: err.message });
+        res.status(500).json({ message: 'Error al crear la imagen' });
+    }
+};
+
+export const updateImage = async (req, res) => {
+    try {
+        const updatedImage = await ImageModel.updateImage(req.params.id, req.body);
+        if (!updatedImage) {
+            return res.status(404).json({ message: 'Imagen no encontrada' });
+        }
+        res.json(updatedImage);
+    } catch (err) {
+        res.status(500).json({ message: 'Error al actualizar la imagen' });
+    }
+};
+
+export const deleteImage = async (req, res) => {
+    try {
+        const success = await ImageModel.deleteImage(req.params.id);
+        if (success) {
+            res.json({ message: 'Imagen eliminada' });
+        } else {
+            res.status(404).json({ message: 'Imagen no encontrada' });
+        }
+    } catch (err) {
+        res.status(500).json({ message: 'Error al eliminar la imagen' });
     }
 };
