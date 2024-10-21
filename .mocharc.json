@@ -1,12 +1,18 @@
 {
   "diff": true,
-  "extension": ["js"],
+  "extension": [
+    "js"
+  ],
   "slow": 1500,
   "timeout": 20000,
   "recursive": true,
   "package": "./package.json",
   "reporter": "allure-mocha",
-  "reporterOptions": ["resultsDir=allure-results"],
-  "spec": ["tests/**/*.test.js"],
+  "reporterOptions": [
+    "resultsDir=allure-results"
+  ],
+  "spec": [
+    "tests/**/*.test.js"
+  ],
   "ui": "bdd"
 }

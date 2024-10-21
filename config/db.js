@@ -134,7 +134,7 @@ const imagenEjemplo = {
 };
 
 // Insertar la imagen con sus detalles
-insertImageWithDetails(imagenEjemplo);
+insertImage(imagenEjemplo);
 
 // Exportar la base de datos para uso en otros módulos
 export default db;
