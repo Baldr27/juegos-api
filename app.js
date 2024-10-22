@@ -1,7 +1,6 @@
 require('dotenv').config();
 const express = require('express');
-const taskRoutes = require('./routes/taskRoutes');
-const imageRoutes = require('./routes/ImageRoutes');
+const imageRoutes = require('./routes/ImageRoutes.js');
 
 const app = express();
 
@@ -9,7 +8,6 @@ const app = express();
 app.use(express.json());
 
 // Rutas
-app.use('/tasks', taskRoutes);
 app.use('/images', imageRoutes);
 
 // Middleware para manejar errores
