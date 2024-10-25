@@ -63,8 +63,8 @@ describe('Bottom-Up Integration Tests for Images', () => {
                     console.error('Error esperado al no guardar la imagen:', err); // Log de error
                     return done(err);
                 }
-                console.log('Error esperado:', res.body.message); // Log del mensaje de error
-                expect(res.body.message).to.include('Faltan campos obligatorios o están vacíos'); // Verificar mensaje de error
+                console.log('Error esperado:', res.body.error.message); // Log del mensaje de error
+                expect(res.body.error.message).to.include('Faltan campos obligatorios o están vacíos'); // Verificar mensaje de error
                 done();
             });
     });

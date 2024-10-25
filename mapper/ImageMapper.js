@@ -1,4 +1,4 @@
-// crear un mapper para hacer que image pase de objet a json
+// crear un mapper para hacer que image pase de object a json
 class ImageMapper {
     static toDTO(image) {
         return {

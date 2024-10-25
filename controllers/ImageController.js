@@ -27,29 +27,21 @@ export const getImageById = async (req, res) => {
 };
 
 export const createImage = async (req, res) => {
-    const { url, format, resolution, title, tags } = req.body;
+    const image = {
+        url: req.body.url,
+        format: req.body.format,
+        resolution: req.body.resolution,
+        title: req.body.title,
+        tags: req.body.tags
+    };
 
     try {
-        // Asegúrate de que la función db.run tiene una callback para obtener lastID
-        db.run(`INSERT INTO images (url, format, resolution, title, tags) VALUES (?, ?, ?, ?, ?)`,
-            [url, format, resolution, title, JSON.stringify(tags)], function (err) {
-                if (err) {
-                    console.error('Error al crear la imagen:', err);
-                    return res.status(500).json({ error: 'Error al crear la imagen' });
-                }
-                // Aquí devolvemos el objeto completo
-                res.status(201).json({
-                    id: this.lastID,
-                    url,
-                    format,
-                    resolution,
-                    title,
-                    tags
-                });
-            });
+        const result = await ImageModel.saveImage(image);
+        res.status(201).json(result);
     } catch (error) {
         console.error('Error al crear la imagen:', error);
-        res.status(500).json({ error: 'Error al crear la imagen' });
+        const status = error.status || 500;
+        res.status(status).json({ error });
     }
 };
 

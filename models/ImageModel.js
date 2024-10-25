@@ -77,15 +77,14 @@ class ImageModel {
     // Función auxiliar para validar los campos de la imagen
     static validateImageFields(image) {
         const missingFields = [];
-        const imagenMapeada = ImageMapper.mapImage(image);
+        const imagenMapeada = ImageMapper.toDTO(image);
+        console.log("imagen mapeada fuera del for: ", imagenMapeada);
         for (const key in imagenMapeada) {
-            if (!imagenMapeada[key] || imagenMapeada[key].trim() === '') {
+            if (!imagenMapeada[key] || (typeof imagenMapeada[key] === 'string' && imagenMapeada[key].trim() === '') || imagenMapeada[key] == null ) {
+                console.log("missingFields: ",missingFields);
+                console.log("imagen mappeada: ", imagenMapeada);
                 missingFields.push(key);
-                return {
-                    status: 400,
-                    message: `Falta el campo obligatorio: ${key}`
-                };
-            }
+           }
         }
         console.log('Campos faltantes:', missingFields);
         // Si hay campos faltantes, devolver un error
