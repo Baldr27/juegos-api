@@ -132,4 +132,4 @@ dist
 #Allure
 allure-report/
 allure-results/
-database/
+database/images.db
