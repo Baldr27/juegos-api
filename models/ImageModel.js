@@ -1,4 +1,5 @@
 import db from '../config/db.js';
+import ImageMapper from '../mapper/ImageMapper.js';
 
 class ImageModel {
     static getAllImages() {
@@ -9,13 +10,13 @@ class ImageModel {
             db.all(query, [], (err, rows) => {
                 if (err) {
                     console.error('Error al obtener todas las imágenes:', err); // Log de error
-                    return reject(err); // Asegúrate de rechazar la promesa
+                    return reject(err);
                 }
                 rows.forEach((row) => {
                     const tagsArray = JSON.parse(row.tags);
                     console.log(`Título: ${row.title}, Etiquetas:`, tagsArray);
                 });
-                resolve(rows); // Asegúrate de resolver las filas
+                resolve(rows);
             });
         });
     }
@@ -31,7 +32,6 @@ class ImageModel {
                     return reject(err);
                 }
                 if (row) {
-                    // Convertir el campo tags de JSON a array
                     row.tags = JSON.parse(row.tags);
                 }
                 resolve(row);
@@ -39,45 +39,91 @@ class ImageModel {
         });
     }
 
+    // Función para validar y luego crear la imagen si todo está correcto
+    static saveImage(image) {
+        return new Promise((resolve, reject) => {
+            // Validación de los campos
+            const validationError = ImageModel.validateImageFields(image);
+            if (validationError) {
+
+                return reject(validationError);
+            }
+            ImageModel.createImage(image)
+                .then(resolve)
+                .catch(reject);
+        });
+    }
+
     static createImage(image) {
         return new Promise((resolve, reject) => {
             const { url, format, resolution, title, tags } = image;
+            const tagsJSON = JSON.stringify(tags || []); // Serializa los tags, si existen
 
-            // Convertir tags a JSON
-            const tagsJSON = JSON.stringify(tags);
-
-            db.run(`INSERT INTO images (url, format, resolution, title, tags) VALUES (?, ?, ?, ?, ?)`,
-                [url, format, resolution, title, tagsJSON], function (err) {
+            db.run(
+                `INSERT INTO images (url, format, resolution, title, tags) VALUES (?, ?, ?, ?, ?)`,
+                [url, format, resolution, title, tagsJSON],
+                function (err) {
                     if (err) {
                         console.error('Error al crear la imagen:', err); // Log de error
-                        return reject(err);
+                        return reject({ status: 500, message: 'Error al crear la imagen', error: err });
                     }
                     console.log('Imagen creada con ID:', this.lastID); // Log de éxito
                     resolve({ id: this.lastID, url, format, resolution, title, tags });
-                });
+                }
+            );
         });
     }
+
+    // Función auxiliar para validar los campos de la imagen
+    static validateImageFields(image) {
+        const missingFields = [];
+        const imagenMapeada = ImageMapper.mapImage(image);
+        for (const key in imagenMapeada) {
+            if (!imagenMapeada[key] || imagenMapeada[key].trim() === '') {
+                missingFields.push(key);
+                return {
+                    status: 400,
+                    message: `Falta el campo obligatorio: ${key}`
+                };
+            }
+        }
+        console.log('Campos faltantes:', missingFields);
+        // Si hay campos faltantes, devolver un error
+        if (missingFields.length > 0) {
+            return {
+                status: 400,
+                message: `Faltan campos obligatorios o están vacíos: ${missingFields.join(', ')}`
+            };
+        }
+
+        return null; // No hay errores de validación
+    }
+
+
+
+
 
     static updateImage(id, image) {
         return new Promise((resolve, reject) => {
             const { url, format, resolution, title, tags } = image;
 
-            // Convertir tags a JSON
-            const tagsJSON = JSON.stringify(tags);
+            const tagsJSON = tags ? JSON.stringify(tags) : '[]'; // Manejar tags nulos o no definidos
 
             db.run(`
-                UPDATE images SET url = ?, format = ?, resolution = ?, title = ?, tags = ?
-                WHERE id = ?
-            `, [url, format, resolution, title, tagsJSON, id], function (err) {
+            UPDATE images SET url = ?, format = ?, resolution = ?, title = ?, tags = ?
+            WHERE id = ?
+        `, [url, format, resolution, title, tagsJSON, id], function (err) {
                 if (err) {
-                    console.error('Error al actualizar la imagen:', err); // Log de error
+                    console.error('Error al actualizar la imagen:', err);
                     return reject(err);
                 }
-                console.log('Imagen actualizada con ID:', id); // Log de éxito
+                console.log('Imagen actualizada con ID:', id);
                 resolve({ id, url, format, resolution, title, tags });
             });
         });
     }
+
+
 
     static deleteImage(id) {
         return new Promise((resolve, reject) => {

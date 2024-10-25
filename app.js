@@ -1,7 +1,5 @@
-require('dotenv').config();
-const express = require('express');
-const imageRoutes = require('./routes/ImageRoutes.js');
-
+import express from 'express';
+import imageRoutes from './routes/ImageRoutes.js';
 const app = express();
 
 // Middleware para parsear JSON
@@ -16,7 +14,7 @@ app.use((err, req, res, next) => {
 });
 
 // Iniciar servidor
-const port = process.env.PORT || 3000;
+const port = 3000;
 app.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);
 });

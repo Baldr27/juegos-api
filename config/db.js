@@ -17,14 +17,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
 });
 
 db.serialize(() => {
-    // Crear tabla para los usuarios
-    db.run(`
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            email TEXT NOT NULL
-        )
-    `);
+    // Crear tabla para las imágenes
     db.run(`
         CREATE TABLE IF NOT EXISTS images (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -35,7 +28,6 @@ db.serialize(() => {
             tags TEXT
         )
     `);
-
 });
 
 export default db;
