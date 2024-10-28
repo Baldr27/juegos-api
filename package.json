@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "test": "mocha --config=.mocharc.json",
+    "smoke": "mocha --grep 'humo'",
     "allure": "allure generate --clean && allure open",
     "coverage": "nyc mocha --config=.mocharc.json; nyc report --reporter=html; xdg-open coverage/index.html"
   },
