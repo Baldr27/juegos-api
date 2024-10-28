@@ -4,6 +4,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "start": "node app.js",
     "test": "mocha --config=.mocharc.json",
     "smoke": "mocha --grep 'humo'",
     "allure": "allure generate --clean && allure open",

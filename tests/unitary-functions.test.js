@@ -1,115 +1,135 @@
 import { expect } from 'chai';
 import request from 'supertest';
-import ImageModel from '../models/ImageModel.js';
+import GameModel from '../models/GameModel.js';
 import app from './app.test.js';
 
-
-export const createImageForTest = () => {
-    const image = {
-        url: 'https://example.com/image.jpg',
-        format: 'jpeg',
-        resolution: '1024x768',
-        title: 'Sunset at the Beach',
-        tags: ['beach', 'sunset']
+export const createGameForTest = () => {
+    const game = {
+        nombre: 'Sunset at the Beach',
+        genero: 'Adventure',
+        plataforma: 'PC',
+        fecha_lanzamiento: '2023-01-15',
+        precio: 19.99
     };
-    return ImageModel.saveImage(image);
-}
-
-// Función para probar la creación exitosa de una imagen
-export const testCreateImageSuccessfully = (done) => {
-    request(app)
-        .post('/images')
-        .send({
-            "url": "https://example.com/image.jpg",
-            "format": "jpeg",
-            "resolution": "1024x768",
-            "title": "Sunset at the Beach",
-            "tags": ["beach", "sunset"]
-        })
-        .expect(201)
-        .end((err, res) => {
-            if (err) {
-                console.error('Error al guardar la imagen:', err);
-                return done(err);
-            }
-            console.log('Respuesta recibida:', res.body);
-            expect(res.body.url).to.deep.equal("https://example.com/image.jpg");
-            done();
-        });
+    return GameModel.saveGame(game);
 };
 
-export const testCreateImageMissingFields = (done) => {
-    const image = {
-        url: "", // Falta el URL
-        format: "jpeg",
-        resolution: "1024x768",
-        title: "Imagen sin URL",
-        tags: ["tag1", "tag2"]
+// Test for successful game creation
+export const testCreateGameSuccessfully = (done) => {
+    try {
+        request(app)
+            .post('/games')
+            .send({
+                nombre: 'Sunset at the Beach',
+                genero: 'Adventure',
+                plataforma: 'PC',
+                fecha_lanzamiento: '2023-01-15',
+                precio: 19.99
+            })
+            .expect(201)
+            .end((err, res) => {
+                if (err) {
+                    console.error('Error al guardar la gamen:', err);
+                    return done(err);
+                }
+                console.log('Respuesta recibida:', res.body);
+                expect(res.body.nombre).to.deep.equal('Sunset at the Beach');
+                done();
+            });
+    } catch (error) {
+        done(error);
+    }
+};
+
+// Test for missing fields in game creation
+export const testCreateGameMissingFields = (done) => {
+    const game = {
+        nombre: '',
+        genero: 'Adventure',
+        plataforma: 'PC',
+        fecha_lanzamiento: '2023-01-15',
+        precio: 19.99
     };
 
-    ImageModel.saveImage(image)
+    GameModel.saveGame(game)
         .then(() => {
             done(new Error('Debería haber fallado la validación.'));
         })
         .catch((err) => {
-            expect(err.status).to.equal(400);
-            expect(err.message).to.include('Faltan campos obligatorios o están vacíos: url');
-            done();
-        });
-};
-
-// Prueba para obtener todas las imágenes
-export const testGetAllImages = (done) => {
-    request(app)
-        .get('/images')
-        .expect(200)
-        .end((err, res) => {
-            if (err) {
-                console.error('Error al obtener todas las imágenes:', err);
-                return done(err);
+            try {
+                expect(err.status).to.equal(400);
+                expect(err.message).to.include('Faltan campos obligatorios o están vacíos: nombre');
+                done();
+            } catch (error) {
+                done(error);
             }
-            expect(res.body).to.be.an('array');
-            expect(res.body.length).to.be.greaterThan(0);
-            done();
         });
 };
 
-// Prueba para actualizar una imagen existente
-export const testUpdateImage = (done) => {
-    request(app).get('/images').end((err, res) => {
-        if (err) return done(err);
-        const imageId = res.body[0].id;
-        const updatedData = {
-            title: 'Nueva imagen actualizada',
-            url: 'https://example.com/imagen-actualizada.jpg',
-            format: 'png',
-            resolution: '1280x720',
-            tags: ['actualizado', 'ejemplo']
-        };
+// Test for fetching all games
+export const testGetAllGames = (done) => {
+    try {
         request(app)
-            .put(`/images/${imageId}`)
-            .send(updatedData)
+            .get('/games')
             .expect(200)
             .end((err, res) => {
-                if (err) return done(err);
-                expect(res.body.title).to.equal(updatedData.title);
+                if (err) {
+                    console.error('Error al obtener todas las gamens:', err);
+                    return done(err);
+                }
+                expect(res.body).to.be.an('array');
+                expect(res.body.length).to.be.greaterThan(0);
                 done();
             });
-    });
+    } catch (error) {
+        done(error);
+    }
 };
 
-// Prueba para eliminar una imagen existente
-export const testDeleteImage = (done) => {
-    request(app).get('/images').end((err, res) => {
-        if (err) return done(err);
-        const imageId = res.body[0].id;
-        request(app)
-            .delete(`/images/${imageId}`)
-            .expect(200)
-            .end((err, res) => {
-                if (err) return done(err);
-                expect(res.body.message).to.equal('Imagen eliminada');
-                done();
-            });
-    });
+// Test for updating an existing game
+export const testUpdateGame = (done) => {
+    try {
+        request(app).get('/games').end((err, res) => {
+            if (err) return done(err);
+            const gameId = res.body[0].id;
+            const updatedData = {
+                nombre: 'New Sunset Adventure',
+                genero: 'Puzzle',
+                plataforma: 'Mobile',
+                fecha_lanzamiento: '2024-06-12',
+                precio: 9.99
+            };
+            request(app)
+                .put(`/games/${gameId}`)
+                .send(updatedData)
+                .expect(200)
+                .end((err, res) => {
+                    if (err) return done(err);
+                    expect(res.body.nombre).to.equal(updatedData.nombre);
+                    done();
+                });
+        });
+    } catch (error) {
+        done(error);
+    }
+};
+
+// Test for deleting an existing game
+export const testDeleteGame = (done) => {
+    try {
+        request(app).get('/games').end((err, res) => {
+            if (err) return done(err);
+            const gameId = res.body[0].id;
+            request(app)
+                .delete(`/games/${gameId}`)
+                .expect(200)
+                .end((err, res) => {
+                    if (err) return done(err);
+                    expect(res.body.message).to.equal('Gamen eliminada');
+                    done();
+                });
+        });
+    } catch (error) {
+        done(error);
+    }
 };

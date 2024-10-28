@@ -1,12 +1,12 @@
 import express from 'express';
-import imageRoutes from './routes/ImageRoutes.js';
+import gameRoutes from './routes/GameRoutes.js';
 const app = express();
 
 // Middleware para parsear JSON
 app.use(express.json());
 
 // Rutas
-app.use('/images', imageRoutes);
+app.use('/games', gameRoutes);
 
 // Middleware para manejar errores
 app.use((err, req, res, next) => {
