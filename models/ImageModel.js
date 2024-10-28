@@ -78,15 +78,11 @@ class ImageModel {
     static validateImageFields(image) {
         const missingFields = [];
         const imagenMapeada = ImageMapper.toDTO(image);
-        console.log("imagen mapeada fuera del for: ", imagenMapeada);
         for (const key in imagenMapeada) {
-            if (!imagenMapeada[key] || (typeof imagenMapeada[key] === 'string' && imagenMapeada[key].trim() === '') || imagenMapeada[key] == null ) {
-                console.log("missingFields: ",missingFields);
-                console.log("imagen mappeada: ", imagenMapeada);
+            if (!imagenMapeada[key] || (typeof imagenMapeada[key] === 'string' && imagenMapeada[key].trim() === '') || imagenMapeada[key] == null) {
                 missingFields.push(key);
-           }
+            }
         }
-        console.log('Campos faltantes:', missingFields);
         // Si hay campos faltantes, devolver un error
         if (missingFields.length > 0) {
             return {
@@ -121,7 +117,6 @@ class ImageModel {
             });
         });
     }
-
 
 
     static deleteImage(id) {

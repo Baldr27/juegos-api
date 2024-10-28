@@ -63,6 +63,7 @@ export const updateImage = async (req, res) => {
 export const deleteImage = async (req, res) => {
     const { id } = req.params;
     try {
+        console.log(`Eliminando imagen con ID: ${id}`); // Log de información
         const result = await db.run(`DELETE FROM images WHERE id = ?`, [id]);
         if (result.changes === 0) {
             return res.status(404).json({ error: 'Imagen no encontrada' });
