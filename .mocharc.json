@@ -7,7 +7,7 @@
   "timeout": 20000,
   "recursive": true,
   "package": "./package.json",
-  "reporter": "allure-mocha",
+  "reporter": "spec",
   "reporterOptions": [
     "resultsDir=allure-results"
   ],

@@ -1,0 +1,87 @@
+config:
+  target: 'http://localhost:3000'
+  phases:
+    - duration: 60
+      arrivalRate: 5
+      name: "Warm-up"
+    - duration: 120
+      arrivalRate: 10
+      rampTo: 20
+      name: "Load testing"
+    - duration: 180
+      arrivalRate: 20
+      rampTo: 50
+      name: "Stress testing"
+
+  defaults:
+    headers:
+      Content-Type: "application/json"
+
+scenarios:
+  - name: "Create Game Successfully"
+    flow:
+      - post:
+          url: "/games"
+          json:
+            nombre: "Sunset at the Beach"
+            genero: "Adventure"
+            plataforma: "PC"
+            fecha_lanzamiento: "2023-01-15"
+            precio: 19.99
+          expect:
+            - statusCode: 201
+
+  - name: "Create Game with Missing Fields"
+    flow:
+      - post:
+          url: "/games"
+          json:
+            nombre: ""
+            genero: "Adventure"
+            plataforma: "PC"
+            fecha_lanzamiento: "2023-01-15"
+            precio: 19.99
+          expect:
+            - statusCode: 400
+            - contains: "Faltan campos obligatorios o están vacíos: nombre"
+
+  - name: "Get All Games"
+    flow:
+      - get:
+          url: "/games"
+          expect:
+            - statusCode: 200
+            - json: "array"
+
+  - name: "Update Game"
+    flow:
+      - get:
+          url: "/games"
+          capture:
+            - json: "$[0].id"
+              as: gameId
+      - put:
+          url: "/games/{{ gameId }}"
+          json:
+            nombre: "New Sunset Adventure"
+            genero: "Puzzle"
+            plataforma: "Mobile"
+            fecha_lanzamiento: "2024-06-12"
+            precio: 9.99
+          expect:
+            - statusCode: 200
+            - json:
+                nombre: "New Sunset Adventure"
+
+  - name: "Delete Game"
+    flow:
+      - get:
+          url: "/games"
+          capture:
+            - json: "$[0].id"
+              as: gameId
+      - delete:
+          url: "/games/{{ gameId }}"
+          expect:
+            - statusCode: 200
+            - contains: "Gamen eliminada"
